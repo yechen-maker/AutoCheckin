@@ -25,7 +25,8 @@ def send_email(subject, body):
     msg['Subject'] = Header(subject, 'utf-8')
 
     try:
-        with smtplib.SMTP_SSL('smtp.qq.com', 465) as server:
+        # 将服务器地址从 'smtp.qq.com' 修改为 'smtp.gmail.com'
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
         print("日志邮件发送成功")
