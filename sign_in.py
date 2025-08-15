@@ -12,9 +12,25 @@ LOGIN_URL = "https://navix.site/login"
 SIGN_URL = "https://navix.site/sign_in"
 LOG_FILE = "sign_log.txt"
 
-EMAIL_SENDER = "your_qq_email@qq.com"
-EMAIL_PASSWORD = "邮箱授权码"
-EMAIL_RECEIVER = "1916852351@qq.com"
+EMAIL_SENDER = "your_qq_email@qq.com"  # 发件人
+EMAIL_PASSWORD = "邮箱授权码"           # 发件人授权码
+EMAIL_RECEIVER = "1916852351@qq.com"  # 收件人
+
+# ------------------ 邮件发送函数 ------------------
+def send_email(subject, body):
+    # 全部使用 UTF-8
+    msg = MIMEText(body, 'plain', 'utf-8')
+    msg['From'] = Header(EMAIL_SENDER, 'utf-8')
+    msg['To'] = Header(EMAIL_RECEIVER, 'utf-8')
+    msg['Subject'] = Header(subject, 'utf-8')
+
+    try:
+        with smtplib.SMTP_SSL('smtp.qq.com', 465) as server:
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
+        print("日志邮件发送成功")
+    except Exception as e:
+        print("日志邮件发送失败:", e)
 
 # ------------------ 登录 ------------------
 session = requests.Session()
@@ -68,20 +84,4 @@ with open(LOG_FILE, "a", encoding="utf-8") as f:
     f.write(log_text + "\n")
 
 # ------------------ 发送邮件 ------------------
-def send_email(subject, body):
-    # 使用 utf-8 编码，避免 emoji/中文报错
-    msg = MIMEText(body, 'plain', 'utf-8')
-    msg['From'] = Header(EMAIL_SENDER, 'utf-8')
-    msg['To'] = Header(EMAIL_RECEIVER, 'utf-8')
-    msg['Subject'] = Header(subject, 'utf-8')
-
-    try:
-        with smtplib.SMTP_SSL('smtp.qq.com', 465) as server:
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
-        print("日志邮件发送成功")
-    except Exception as e:
-        print("日志邮件发送失败:", e)
-
-# 调用发送邮件
 send_email("探花TV 每日签到日志", log_text)
