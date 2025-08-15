@@ -31,9 +31,21 @@ jobs:
 
       # 4. 输出北京时间并运行签到脚本
       - name: Run sign-in script
+        # 【关键修改点】确保 env 变量名与 Python 脚本和你的 Secrets 匹配
         env:
+          # 第一个账号 (使用你无后缀的 Secret)
           NAVIX_EMAIL: ${{ secrets.NAVIX_EMAIL }}
           NAVIX_PASSWORD: ${{ secrets.NAVIX_PASSWORD }}
+          
+          # 第二个账号 (使用你后缀为 2 的 Secret)
+          NAVIX_EMAIL2: ${{ secrets.NAVIX_EMAIL2 }}
+          NAVIX_PASSWORD2: ${{ secrets.NAVIX_PASSWORD2 }}
+          
+          # 如果未来你添加了名为 NAVIX_EMAIL3, NAVIX_PASSWORD3 的 Secrets, 在这里继续添加即可
+          # NAVIX_EMAIL3: ${{ secrets.NAVIX_EMAIL3 }}
+          # NAVIX_PASSWORD3: ${{ secrets.NAVIX_PASSWORD3 }}
+
+          # 邮件配置
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
