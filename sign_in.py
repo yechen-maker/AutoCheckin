@@ -1,14 +1,24 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 
 # ------------------ 配置 ------------------
-EMAIL = "yephotoalbum@gmail.com"
-PASSWORD = "69fYKuQJzM4LkuY"
-
-LOGIN_URL = "https://navix.site/login"
+EMAIL = os.environ.get("NAVIX_EMAIL")
+PASSWORD = os.environ.get("NAVIX_PASSWORD")
 SIGN_URL = "https://navix.site/sign_in"
+LOGIN_URL = "https://navix.site/login"
 LOG_FILE = "sign_log.txt"
+
+# 邮件配置
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER")
+EMAIL_PASS = os.environ.get("EMAIL_PASS")
+EMAIL_RECEIVER = os.environ.get("EMAIL_RECEIVER")
+SMTP_SERVER = "smtp.qq.com"
+SMTP_PORT = 465
 
 # ------------------ 登录 ------------------
 session = requests.Session()
@@ -47,10 +57,23 @@ if btn and btn.get("data-can-signin") == "true":
 else:
     status = "今天已签到"
 
-# ------------------ 输出 GitHub Actions 日志 ------------------
-print(f"{datetime.now()} - {status}")
-print(f"连续签到天数: {consecutive_days}, 探花币: {exp}")
+# ------------------ 输出日志 ------------------
+log_text = f"{datetime.now()} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}"
+print(log_text)
 
-# ------------------ 日志文件 ------------------
 with open(LOG_FILE, "a", encoding="utf-8") as f:
-    f.write(f"{datetime.now()} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}\n")
+    f.write(log_text + "\n")
+
+# ------------------ 发送邮件通知 ------------------
+try:
+    msg = MIMEText(log_text, "plain", "utf-8")
+    msg["From"] = Header("自动签到", "utf-8")
+    msg["To"] = Header("自己", "utf-8")
+    msg["Subject"] = Header("Navix 每日签到结果", "utf-8")
+
+    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+        server.login(EMAIL_SENDER, EMAIL_PASS)
+        server.sendmail(EMAIL_SENDER, EMAIL_RECEIVER, msg.as_string())
+    print("邮件发送成功")
+except Exception as e:
+    print("邮件发送失败:", e)
