@@ -48,12 +48,12 @@ try:
     else:
         login_status = f"登录失败: {resp.text}"
         print(login_status)
-        send_email("探花TV 每日签到日志", login_status)
+        send_email("每日签到日志", login_status)
         exit()
 except Exception as e:
     login_status = f"登录异常: {e}"
     print(login_status)
-    send_email("探花TV 每日签到日志", login_status)
+    send_email("每日签到日志", login_status)
     exit()
 
 # ------------------ 获取签到页面 ------------------
@@ -83,7 +83,7 @@ except Exception as e:
     consecutive_days = "未知"
 
 # ------------------ 输出日志 ------------------
-log_text = f"{datetime.now()} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}"
+log_text = f"{datetime.now()} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 币: {exp}"
 print(log_text)
 
 # 写入日志文件
@@ -91,4 +91,4 @@ with open(LOG_FILE, "a", encoding="utf-8") as f:
     f.write(log_text + "\n")
 
 # ------------------ 发送邮件 ------------------
-send_email("探花TV 每日签到日志", log_text)
+send_email("每日签到日志", log_text)
