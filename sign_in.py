@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 # ------------------ 配置 ------------------
-EMAIL = "yephotoalbum@gmail.com"       # 你的邮箱
-PASSWORD = "69fYKuQJzM4LkuY"           # 你的密码
+EMAIL = "yephotoalbum@gmail.com"
+PASSWORD = "69fYKuQJzM4LkuY"
 
 LOGIN_URL = "https://navix.site/login"
 SIGN_URL = "https://navix.site/sign_in"
@@ -30,20 +30,27 @@ sign_resp = session.get(SIGN_URL)
 soup = BeautifulSoup(sign_resp.text, "html.parser")
 btn = soup.find(id="btnSignIn")
 
+# ------------------ 获取探花币和连续签到 ------------------
+exp_elem = soup.find(id="expValue")
+days_elem = soup.find(id="consecutiveDays")
+
+exp = exp_elem.text.strip() if exp_elem else "未知"
+consecutive_days = days_elem.text.strip() if days_elem else "未知"
+
 # ------------------ 判断是否签到 ------------------
 if btn and btn.get("data-can-signin") == "true":
-    # GET /sign_in 本身就完成签到
     sign_resp = session.get(SIGN_URL)
     if sign_resp.status_code == 200:
-        print("签到成功")
         status = "签到成功"
     else:
-        print("签到请求失败")
         status = "签到请求失败"
 else:
-    print("今天已签到")
-    status = "已签到"
+    status = "今天已签到"
 
-# ------------------ 日志 ------------------
+# ------------------ 输出 GitHub Actions 日志 ------------------
+print(f"{datetime.now()} - {status}")
+print(f"连续签到天数: {consecutive_days}, 探花币: {exp}")
+
+# ------------------ 日志文件 ------------------
 with open(LOG_FILE, "a", encoding="utf-8") as f:
-    f.write(f"{datetime.now()} - {status}\n")
+    f.write(f"{datetime.now()} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}\n")
