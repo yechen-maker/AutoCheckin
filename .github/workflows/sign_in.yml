@@ -30,10 +30,9 @@ jobs:
       # 4. 运行签到脚本
       - name: Run sign-in script
         env:
-          EMAIL: ${{ secrets.NAVIX_EMAIL }}
-          PASSWORD: ${{ secrets.NAVIX_PASSWORD }}
+          NAVIX_EMAIL: ${{ secrets.NAVIX_EMAIL }}
+          NAVIX_PASSWORD: ${{ secrets.NAVIX_PASSWORD }}
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
-        run: |
-          python sign_in.py
+        run: python sign_in.py
