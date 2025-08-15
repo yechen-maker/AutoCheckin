@@ -1,9 +1,9 @@
 name: Auto Sign-in
 
-# 每天自动运行一次，UTC 时间每天 16:01，对应北京时间 00:01
+# 每天自动运行一次，UTC 时间每天 04:58，对应北京时间 12:58
 on:
   schedule:
-    - cron: "1 16 * * *"
+    - cron: "58 4 * * *"  # 这里是唯一的改动
   workflow_dispatch: # 允许手动触发
 
 jobs:
