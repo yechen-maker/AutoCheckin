@@ -6,21 +6,16 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 # ------------------ 配置 ------------------
-EMAIL = "yephotoalbum@gmail.com"           # Navix 登录邮箱
-PASSWORD = "69fYKuQJzM4LkuY"              # Navix 登录密码
-
-# 邮件配置
-EMAIL_SENDER = "你的邮箱@qq.com"           # 发件邮箱
-EMAIL_PASSWORD = "邮箱授权码"              # SMTP 授权码
-EMAIL_RECEIVER = "1916852351@qq.com"       # 收件邮箱
-SMTP_SERVER = "smtp.qq.com"
-SMTP_PORT = 465
-
-# URL
+EMAIL = "yephotoalbum@gmail.com"       # 探花TV账号
+PASSWORD = "69fYKuQJzM4LkuY"          # 探花TV密码
 LOGIN_URL = "https://navix.site/login"
 SIGN_URL = "https://navix.site/sign_in"
-
 LOG_FILE = "sign_log.txt"
+
+# 邮件配置
+EMAIL_SENDER = "your_qq_email@qq.com"      # 发件人邮箱（建议用专用邮箱）
+EMAIL_PASSWORD = "邮箱授权码"             # 发件人邮箱授权码
+EMAIL_RECEIVER = "1916852351@qq.com"      # 收件人邮箱
 
 # ------------------ 登录 ------------------
 session = requests.Session()
@@ -37,59 +32,57 @@ try:
     else:
         login_status = f"登录失败: {resp.text}"
         print(login_status)
-        # 登录失败也继续记录日志和发邮件
+        send_email("探花TV 每日签到日志", login_status)
+        exit()
 except Exception as e:
     login_status = f"登录异常: {e}"
     print(login_status)
+    send_email("探花TV 每日签到日志", login_status)
+    exit()
 
 # ------------------ 获取签到页面 ------------------
-try:
+sign_resp = session.get(SIGN_URL)
+soup = BeautifulSoup(sign_resp.text, "html.parser")
+btn = soup.find(id="btnSignIn")
+
+exp_elem = soup.find(id="expValue")
+days_elem = soup.find(id="consecutiveDays")
+exp = exp_elem.text.strip() if exp_elem else "未知"
+consecutive_days = days_elem.text.strip() if days_elem else "未知"
+
+# ------------------ 执行签到 ------------------
+if btn and btn.get("data-can-signin") == "true":
+    # 实际签到请求（这里因为前端完成签到，所以访问签到页面即可）
     sign_resp = session.get(SIGN_URL)
-    soup = BeautifulSoup(sign_resp.text, "html.parser")
-    btn = soup.find(id="btnSignIn")
-
-    # 获取探花币和连续签到
-    exp_elem = soup.find(id="expValue")
-    days_elem = soup.find(id="consecutiveDays")
-
-    exp = exp_elem.text.strip() if exp_elem else "未知"
-    consecutive_days = days_elem.text.strip() if days_elem else "未知"
-
-    # 判断是否签到
-    if btn and btn.get("data-can-signin") == "true":
-        # 这里签到是前端完成，发送 GET 访问即可触发
-        sign_trigger = session.get(SIGN_URL)
-        if sign_trigger.status_code == 200:
-            status = "签到成功"
-        else:
-            status = "签到请求失败"
+    if sign_resp.status_code == 200:
+        status = "签到成功"
     else:
-        status = "今天已签到"
+        status = "签到请求失败"
+else:
+    status = "今天已签到"
 
-except Exception as e:
-    status = f"签到异常: {e}"
-    exp = "未知"
-    consecutive_days = "未知"
-
-# ------------------ 构建日志 ------------------
-log_text = f"{datetime.now()} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}\n"
+# ------------------ 输出日志 ------------------
+log_text = f"{datetime.now()} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}"
 print(log_text)
 
-# ------------------ 写入本地日志 ------------------
+# 写入日志文件
 with open(LOG_FILE, "a", encoding="utf-8") as f:
-    f.write(log_text)
+    f.write(log_text + "\n")
 
 # ------------------ 发送邮件 ------------------
-try:
-    msg = MIMEText(log_text, "plain", "utf-8")
-    msg["From"] = Header("Navix签到机器人", "utf-8")
-    msg["To"] = Header("收件人", "utf-8")
-    msg["Subject"] = Header("每日签到日志", "utf-8")
+def send_email(subject, body):
+    msg = MIMEText(body, 'plain', 'utf-8')
+    msg['From'] = Header(EMAIL_SENDER, 'utf-8')
+    msg['To'] = Header(EMAIL_RECEIVER, 'utf-8')
+    msg['Subject'] = Header(subject, 'utf-8')
 
-    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
+    try:
+        with smtplib.SMTP_SSL('smtp.qq.com', 465) as server:
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_SENDER, [EMAIL_RECEIVER], msg.as_string())
+        print("日志邮件发送成功")
+    except Exception as e:
+        print("日志邮件发送失败:", e)
 
-    print("日志邮件发送成功")
-except Exception as e:
-    print("日志邮件发送失败:", e)
+# 调用发送邮件
+send_email("探花TV 每日签到日志", log_text)
