@@ -1,7 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
@@ -83,7 +83,12 @@ except Exception as e:
     consecutive_days = "未知"
 
 # ------------------ 输出日志 ------------------
-log_text = f"{datetime.now()} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 币: {exp}"
+# 创建北京时间时区 (UTC+8)
+beijing_tz = timezone(timedelta(hours=8))
+# 获取当前的北京时间并格式化
+beijing_time = datetime.now(beijing_tz).strftime('%Y-%m-%d %H:%M:%S')
+
+log_text = f"{beijing_time} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 币: {exp}"
 print(log_text)
 
 # 写入日志文件
