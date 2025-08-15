@@ -6,16 +6,15 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 # ------------------ 配置 ------------------
-EMAIL = "yephotoalbum@gmail.com"       # 探花TV账号
-PASSWORD = "69fYKuQJzM4LkuY"          # 探花TV密码
+EMAIL = "yephotoalbum@gmail.com"
+PASSWORD = "69fYKuQJzM4LkuY"
 LOGIN_URL = "https://navix.site/login"
 SIGN_URL = "https://navix.site/sign_in"
 LOG_FILE = "sign_log.txt"
 
-# 邮件配置
-EMAIL_SENDER = "your_qq_email@qq.com"      # 发件人邮箱（建议用专用邮箱）
-EMAIL_PASSWORD = "邮箱授权码"             # 发件人邮箱授权码
-EMAIL_RECEIVER = "1916852351@qq.com"      # 收件人邮箱
+EMAIL_SENDER = "your_qq_email@qq.com"
+EMAIL_PASSWORD = "邮箱授权码"
+EMAIL_RECEIVER = "1916852351@qq.com"
 
 # ------------------ 登录 ------------------
 session = requests.Session()
@@ -52,7 +51,6 @@ consecutive_days = days_elem.text.strip() if days_elem else "未知"
 
 # ------------------ 执行签到 ------------------
 if btn and btn.get("data-can-signin") == "true":
-    # 实际签到请求（这里因为前端完成签到，所以访问签到页面即可）
     sign_resp = session.get(SIGN_URL)
     if sign_resp.status_code == 200:
         status = "签到成功"
@@ -71,6 +69,7 @@ with open(LOG_FILE, "a", encoding="utf-8") as f:
 
 # ------------------ 发送邮件 ------------------
 def send_email(subject, body):
+    # 使用 utf-8 编码，避免 emoji/中文报错
     msg = MIMEText(body, 'plain', 'utf-8')
     msg['From'] = Header(EMAIL_SENDER, 'utf-8')
     msg['To'] = Header(EMAIL_RECEIVER, 'utf-8')
