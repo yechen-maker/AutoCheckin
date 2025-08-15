@@ -1,13 +1,18 @@
-name: Cron Debug
+name: Cron Trigger Test
 
 on:
   schedule:
-    - cron: "*/1 * * * *"
-  workflow_dispatch:
+    - cron: "*/1 * * * *"  # 每分钟触发一次
+  workflow_dispatch:  # 支持手动触发
+
+permissions:
+  contents: read  # 只需要读取仓库内容
 
 jobs:
-  debug:
+  test_cron:
     runs-on: ubuntu-latest
+
     steps:
       - name: Print Beijing Time
-        run: echo "北京时间：$(date -d '+8 hour')"
+        run: |
+          echo "北京时间：$(date -d '+8 hour')"
