@@ -2,7 +2,7 @@ name: Auto Sign-in
 
 on:
   schedule:
-    - cron: "30 8 * * *"  # UTC 16:01 对应北京时间 00:01
+    - cron: "1 16 * * *"  # UTC 16:01 对应北京时间 00:01
   workflow_dispatch:  # 支持手动触发
 
 permissions:
