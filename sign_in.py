@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -6,19 +7,18 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 # ------------------ 配置 ------------------
-EMAIL = "yephotoalbum@gmail.com"
-PASSWORD = "69fYKuQJzM4LkuY"
+EMAIL = os.environ.get("NAVIX_EMAIL")
+PASSWORD = os.environ.get("NAVIX_PASSWORD")
 LOGIN_URL = "https://navix.site/login"
 SIGN_URL = "https://navix.site/sign_in"
 LOG_FILE = "sign_log.txt"
 
-EMAIL_SENDER = "your_qq_email@qq.com"  # 发件人
-EMAIL_PASSWORD = "邮箱授权码"           # 发件人授权码
-EMAIL_RECEIVER = "1916852351@qq.com"  # 收件人
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER")      # 发件人
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")  # 发件人授权码
+EMAIL_RECEIVER = os.environ.get("EMAIL_RECEIVER")  # 收件人
 
 # ------------------ 邮件发送函数 ------------------
 def send_email(subject, body):
-    # 全部使用 UTF-8
     msg = MIMEText(body, 'plain', 'utf-8')
     msg['From'] = Header(EMAIL_SENDER, 'utf-8')
     msg['To'] = Header(EMAIL_RECEIVER, 'utf-8')
@@ -56,24 +56,30 @@ except Exception as e:
     exit()
 
 # ------------------ 获取签到页面 ------------------
-sign_resp = session.get(SIGN_URL)
-soup = BeautifulSoup(sign_resp.text, "html.parser")
-btn = soup.find(id="btnSignIn")
-
-exp_elem = soup.find(id="expValue")
-days_elem = soup.find(id="consecutiveDays")
-exp = exp_elem.text.strip() if exp_elem else "未知"
-consecutive_days = days_elem.text.strip() if days_elem else "未知"
-
-# ------------------ 执行签到 ------------------
-if btn and btn.get("data-can-signin") == "true":
+try:
     sign_resp = session.get(SIGN_URL)
-    if sign_resp.status_code == 200:
-        status = "签到成功"
+    soup = BeautifulSoup(sign_resp.text, "html.parser")
+    btn = soup.find(id="btnSignIn")
+
+    exp_elem = soup.find(id="expValue")
+    days_elem = soup.find(id="consecutiveDays")
+    exp = exp_elem.text.strip() if exp_elem else "未知"
+    consecutive_days = days_elem.text.strip() if days_elem else "未知"
+
+    # ------------------ 执行签到 ------------------
+    if btn and btn.get("data-can-signin") == "true":
+        sign_resp = session.get(SIGN_URL)
+        if sign_resp.status_code == 200:
+            status = "签到成功"
+        else:
+            status = "签到请求失败"
     else:
-        status = "签到请求失败"
-else:
-    status = "今天已签到"
+        status = "今天已签到"
+
+except Exception as e:
+    status = f"签到异常: {e}"
+    exp = "未知"
+    consecutive_days = "未知"
 
 # ------------------ 输出日志 ------------------
 log_text = f"{datetime.now()} - {login_status} - {status} - 连续签到天数: {consecutive_days}, 探花币: {exp}"
