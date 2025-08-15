@@ -1,16 +1,15 @@
-name: Auto Sign-in
+name: Test Auto Sign-in
 
 on:
   schedule:
-    - cron: "20 5 * * *"  # UTC 05:20，对应北京时间 13:20
+    - cron: "*/1 * * * *"  # 每分钟执行一次
   workflow_dispatch:  # 允许手动触发
 
 permissions:
   contents: read  # 只需要读取仓库内容，安全
-  # 如果 workflow 需要写入仓库，可改为: contents: write
 
 jobs:
-  sign_in:
+  test_run:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +30,7 @@ jobs:
           pip install requests beautifulsoup4
 
       # 4. 运行签到脚本并输出北京时间
-      - name: Run sign-in script
+      - name: Run test sign-in script
         env:
           NAVIX_EMAIL: ${{ secrets.NAVIX_EMAIL }}
           NAVIX_PASSWORD: ${{ secrets.NAVIX_PASSWORD }}
