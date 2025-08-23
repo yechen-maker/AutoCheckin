@@ -37,14 +37,10 @@ jobs:
           NAVIX_EMAIL: ${{ secrets.NAVIX_EMAIL }}
           NAVIX_PASSWORD: ${{ secrets.NAVIX_PASSWORD }}
           
-          # 第二个账号 (使用你后缀为 2 的 Secret)
-          NAVIX_EMAIL2: ${{ secrets.NAVIX_EMAIL2 }}
-          NAVIX_PASSWORD2: ${{ secrets.NAVIX_PASSWORD2 }}
+          # # 第二个账号 (使用你后缀为 2 的 Secret)
+          # NAVIX_EMAIL2: ${{ secrets.NAVIX_EMAIL2 }}
+          # NAVIX_PASSWORD2: ${{ secrets.NAVIX_PASSWORD2 }}
           
-          # 如果未来你添加了名为 NAVIX_EMAIL3, NAVIX_PASSWORD3 的 Secrets, 在这里继续添加即可
-          # NAVIX_EMAIL3: ${{ secrets.NAVIX_EMAIL3 }}
-          # NAVIX_PASSWORD3: ${{ secrets.NAVIX_PASSWORD3 }}
-
           # 邮件配置
           EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
